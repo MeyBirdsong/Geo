@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Async Await</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+</head>
+<body>
+<h1>Open console to see the asycn await function</h1>
+<input type="text" id="cityName" placeholder="Insert city name"/>
+<button id = "asyncButton" onClick="myFunction()">Submit city</button>
+
+<script>
+	function getRandomNumber() { 
+	  return new Promise(resolve => {
+		setTimeout(() => {
+		  resolve(Math.floor(Math.random() * 10)); //get random integer nuumber 0-9
+		}, 500);
+	  });
+	}
+
+	async function asyncAwaitFunction() {
+	  var number = await getRandomNumber();
+	  console.log("Your random number: "+number);
+	}
+
+	asyncAwaitFunction(); //run the function
+	
+	//function to receive city name as parameter for geocode api call
+	function getCity (cityName) {
+		return new Promise(function (resolve, reject) {
+			var request = new XMLHttpRequest();
+
+			var method = 'GET';
+			var url = 'https://geocode.xyz/' + cityName + '?json=1';
+			var async = true;
+
+			request.open(method, url, async);
+			request.onreadystatechange = function () {
+				if (request.readyState == 4) {
+					if (request.status == 200) {
+						var data = JSON.parse(request.responseText);
+						var address = cityName+": "+data.latt+" "+data.longt;
+						resolve(address);
+					}
+					else {
+						reject(request.status);
+					}
+				}
+			};
+			request.send();
+		});
+	};
+	
+	function myFunction(){
+		getCity($("#cityName").val()).then(console.log);
+	}
+  </script>
+</body>
+</html>
